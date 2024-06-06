@@ -1,5 +1,4 @@
 version: 2.1
-
 jobs:
   test:
     docker:
@@ -8,35 +7,9 @@ jobs:
       - checkout
       - run:
           name: Run tests
-          command: echo 'Running tests'
-
-  build:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run:
-          name: Build an artifact
-          command: touch example.txt
-      - store_artifacts:
-          path: example.txt
-
-  deploy:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: Deploy
-          command: echo 'Deploying...'
-
+          command: echo "Running tests"
 workflows:
   version: 2
   example:
     jobs:
       - test
-      - build:
-          requires:
-            - test
-      - deploy:
-          requires:
-            - test
