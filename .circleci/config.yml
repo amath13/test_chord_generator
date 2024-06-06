@@ -1,19 +1,39 @@
+#!/bin/bash -eo pipefail
+
+# Génère un fichier de configuration temporaire
+cat << EOF > circleci-config.yml
 version: 2.1
 
 jobs:
-  generate-and-add-config:
+  test:
     docker:
       - image: circleci/python:3.9
     steps:
       - checkout
       - run:
-          name: Generate and add CircleCI config
+          name: Install dependencies
           command: |
-            chmod +x ./scripts/generate-and-add-config.sh
-            ./scripts/generate-and-add-config.sh
+            python3 -m pip install --upgrade pip
+            pip install -r requirements.txt
+      - run:
+          name: Run tests with Pytest
+          command: |
+            pytest --junitxml=pytest-results.xml
+      - store_test_results:
+          path: pytest-results.xml
+      - store_artifacts:
+          path:
+            - pytest-results.xml
 
 workflows:
   version: 2
   example:
     jobs:
-      - generate-and-add-config
+      - test
+EOF
+
+# Valide le fichier de configuration localement
+circleci config validate -c circleci-config.yml
+
+# Ajoute le fichier de configuration à CircleCI
+circleci api add-config YOUR_USERNAME/YOUR_PROJECT_NAME < circleci-config.yml
