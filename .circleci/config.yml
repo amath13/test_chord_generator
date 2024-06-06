@@ -3,54 +3,26 @@ version: 2.1
 jobs:
   test:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/python:3.9  # Utilisation d'une image Python
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
             python3 -m pip install --upgrade pip
-            pip install -r requirements.txt  # Assurez-vous d'avoir un fichier requirements.txt avec pytest listé
+            pip install -r requirements.txt  # Assurez-vous que pytest est dans requirements.txt
       - run:
           name: Run tests with Pytest
           command: |
             pytest --junitxml=pytest-results.xml  # Génère un rapport XML pour les résultats des tests
-
       - store_test_results:
-          path: pytest-results.xml  # Spécifiez le chemin vers le rapport XML
-
+          path: pytest-results.xml  # Stocke les résultats des tests pour CircleCI
       - store_artifacts:
-          path: 
-            - pytest-results.xml  # Stockez le rapport XML en tant qu'artefact
-            - example.txt  # Si besoin, ajoutez d'autres artefacts ici
-
-  build:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run:
-          name: Build an artifact
-          command: touch example.txt
-      - store_artifacts:
-          path: example.txt
-
-  deploy:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          path:
+            - pytest-results.xml  # Stocke le rapport XML comme artefact
 
 workflows:
   version: 2
   example:
     jobs:
       - test
-      - build:
-          requires:
-            - test
-      - deploy:
-          requires:
-            - test
