@@ -3,51 +3,26 @@ version: 2.1
 jobs:
   test:
     docker:
-      
-image: cimg/python:3.12.2
-  steps:
-checkout
-run:
-    name: Install dependencies
-    command: |
-      python -m pip install --upgrade pip
-      if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-run:
-  name: Run tests
-  command: |
-    if [ -f requirements.txt ]; then pytest; else echo "No requirements.txt found"; fi
-
-  build:
-    docker:
-      
-image: cimg/base:stable
-  steps:
-checkout# Replace this with steps to build a package, or executable
-run:
-    name: Build an artifact
-    command: touch example.txt
-store_artifacts:
-  path: example.txt
-
-  deploy:
-    docker:
-      
-image: cimg/base:stable
-  steps:
-run:
-      name: deploy
-      command: |# Add your deployment script or commands here
-        echo "Deploying application..."
+      - image: circleci/python:3.7  # Utilisation d'une version antérieure de Python
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            python3 -m pip install --upgrade pip
+            pip install -r requirements.txt
+      - run:
+          name: Run tests with Pytest
+          command: |
+            pytest --junitxml=pytest-results.xml
+      - store_test_results:
+          path: pytest-results.xml
+      - store_artifacts:
+          path:
+            - pytest-results.xml
 
 workflows:
   version: 2
   example:
     jobs:
-      
-test
-build:
-      requires:
-test
-deploy:
-  requires:
-build
+      - test
