@@ -1,28 +1,19 @@
 version: 2.1
 
 jobs:
-  test:
+  generate-and-add-config:
     docker:
-      - image: circleci/python:3.7  # Utilisation d'une version antérieure de Python
+      - image: circleci/python:3.9
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Generate and add CircleCI config
           command: |
-            python3 -m pip install --upgrade pip
-            pip install -r requirements.txt
-      - run:
-          name: Run tests with Pytest
-          command: |
-            pytest --junitxml=pytest-results.xml
-      - store_test_results:
-          path: pytest-results.xml
-      - store_artifacts:
-          path:
-            - pytest-results.xml
+            chmod +x ./scripts/generate-and-add-config.sh
+            ./scripts/generate-and-add-config.sh
 
 workflows:
   version: 2
   example:
     jobs:
-      - test
+      - generate-and-add-config
